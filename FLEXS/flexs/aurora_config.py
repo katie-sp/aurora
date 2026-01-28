@@ -1,0 +1,5 @@
+# PPO_METRICS_PATH = '/om/user/kspiv/protein-evolution/logs/ppo_avGFP_raw_MLP_2026-01-17/ppo_metrics.pkl'
+PPO_PATH = '/om/user/kspiv/protein-evolution/ppo/avgfp_01172026'
+SURROGATE_PATH = '/om/user/kspiv/protein-evolution/models/avgfp_dms_surrogate_noembeddings.state_dict'
+DMS_PATH = '/om/user/kspiv/protein-evolution/data/Somermeyer2022_avGFP_dms_filtered.csv'
+WT_PATH = '/om/user/kspiv/protein-evolution/data/avgfp_wt.txt'
