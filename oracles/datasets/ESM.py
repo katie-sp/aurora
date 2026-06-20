@@ -7,12 +7,10 @@ import numpy as np
 import pickle
 from torch.utils.data import Dataset
 
-torch.manual_seed(67)
-
-from aurora.configs.config import *
+from configs.config import *
 
 # Load the pretrained ESM2 model
-esm_model, esm_alphabet = esm.pretrained.esm2_t33_650M_UR50D() #esm.pretrained.esm2_t6_8M_UR50D()
+esm_model, esm_alphabet = esm.pretrained.esm2_t6_8M_UR50D() #esm.pretrained.esm2_t33_650M_UR50D()
 esm_model.eval()
 
 batch_converter = esm_alphabet.get_batch_converter()
@@ -27,7 +25,7 @@ class Embedder:
     
     def set_wildtype(self):
         """Cache wildtype embedding and per-position contributions"""
-        save_path = f'{self.WT_NAME}_wt_token_embeddings_650M.pkl'
+        save_path = f'{ORACLE_DIR}/{WT_NAME}_wt_ESM_8M_embeddings.pkl'
         if os.path.exists(save_path):
             print(f"Found {save_path}. Loading token-level embeddings from pickle...")
             with open(save_path, 'rb') as f:
@@ -35,7 +33,8 @@ class Embedder:
                 self.wt_embedding = self.wt_token_embeddings.mean(axis=0)  # [320]
                 return 
         else:
-            print('Within Embedder set_wildtype: no token-level embeddings found. Doing it the long way. ')
+            os.makedirs(f'{ORACLE_DIR}/', exist_ok=True)
+            print('Within Embedder set_wildtype: no token-level embeddings found. Computing now. ')
 
         # Get full WT embedding
         data = [("wt", self.wt_seq)]
@@ -50,6 +49,7 @@ class Embedder:
         self.wt_embedding = self.wt_token_embeddings.mean(axis=0)  # [320]
 
         print('Within Embedder set_wildtype: saving token-level embeddings.')
+
         with open(save_path, 'wb') as file:
             pickle.dump(self.wt_token_embeddings, file)
     
@@ -93,17 +93,17 @@ class ESM_Dataset(Dataset):
     def _precompute_embeddings(self):
         """Compute all embeddings once and cache them"""
         embeddings = []
-        print('Within ESM_MLP_Dataset _precompute_embeddings: setting wildtype.')
+        print('Within ESM_Dataset _precompute_embeddings: setting wildtype.')
         self.embedder.set_wildtype()
 
-        save_path = f'{ORACLE_DIR}/ESM_650M_embeddings.pkl'
+        save_path = f'{ORACLE_DIR}/{WT_NAME}_ESM_8M_embeddings.pkl'
 
         if os.path.exists(save_path):
             print(f"Found {save_path}. Loading embeddings from pickle...")
             with open(save_path, 'rb') as f:
                 return pickle.load(f)
         else:
-            print('Within ESM_MLP_Dataset _precompute_embeddings: no embeddings found. Doing it the long way.')
+            print('Within ESM_Dataset _precompute_embeddings: no embeddings found. Computing them now...')
         
         # Process in batches for efficiency
         batch_size = 32

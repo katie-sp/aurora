@@ -1,2 +1,2 @@
-from aurora.configs.oracle import *
-from aurora.configs.ppo import *
+from configs.oracle import *
+from configs.ppo import *

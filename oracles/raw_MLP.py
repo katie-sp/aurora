@@ -1,26 +1,17 @@
-import torch, os, esm
+import torch
 from torch import nn
-import torch.nn.functional as F
-import torch.optim as optim
-import pandas as pd
-import numpy as np
-import pickle
-from torch.utils.data import Dataset
 
-torch.manual_seed(67)
-
-from aurora.configs.config import *
-from aurora.oracles.base import BaseOracle
+from configs.config import *
+from oracles.base import BaseOracle
 
 with open(WT_PATH, 'r') as file:
     wt = file.readline().strip()
-
 
 class Raw_MLP_Oracle(BaseOracle):
     """
     Optimized MLP model for learning from raw amino acid sequences.
     """
-    def __init__(self, seq_length=238, emb_dim=64, n_layers=1, n_heads=2, dropout=0.1):
+    def __init__(self, seq_length=LAST_POS - FIRST_POS + 1, emb_dim=64, n_layers=1, n_heads=2, dropout=0.1):
         super().__init__()
         self.seq_length = seq_length
         self.emb_dim = emb_dim

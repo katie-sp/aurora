@@ -1,7 +1,7 @@
 from stable_baselines3.common.callbacks import BaseCallback
 from tqdm.auto import tqdm
 import matplotlib.pyplot as plt
-import os
+import os, pickle
 import numpy as np
 
 from configs.config import *
@@ -74,8 +74,8 @@ class ProteinRLLogger(BaseCallback):
             print(f"[Rollout {len(self.all_rewards)}] avg_reward={reward:.2f}, top_reward={top_reward:.2f}")
 
     def _on_training_end(self):
-        import pickle
-        with open(PPO_DIR + "/metrics.pkl"), 'wb') as file:
+        os.makedirs(PPO_DIR, exist_ok=True)
+        with open(PPO_DIR + "/metrics.pkl", 'wb') as file:
             dicty = {
                 'actions': self.actions,
                 'dataset_used': self.dataset_used,
@@ -126,7 +126,7 @@ class ProteinRLLogger(BaseCallback):
         plt.title("Numbers of mutations per variant")
 
         plt.tight_layout()
-        plt.savefig(PPO_DIR+ "/metrics.png"))
+        plt.savefig(PPO_DIR + "/metrics.png")
         plt.close()
 
         # -----------------------
@@ -143,7 +143,6 @@ class ProteinRLLogger(BaseCallback):
         plt.ylabel("AA Index (0–19)")
 
         # X-axis ticks → actual sequence positions
-        # positions = np.arange(561, 588 + 1)
         positions = np.arange(FIRST_POS, LAST_POS + 1)
         plt.xticks(np.arange(LAST_POS-FIRST_POS+1), positions, rotation=90)
 
@@ -152,7 +151,7 @@ class ProteinRLLogger(BaseCallback):
         plt.yticks(np.arange(20), aa_labels)
 
         plt.title("Heatmap of Mutations (Amino Acid × Position)")
-        plt.savefig(PPO_DIR+ "/action_heatmap.png"))
+        plt.savefig(PPO_DIR + "/action_heatmap.png")
         plt.close()
 
 

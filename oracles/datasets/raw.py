@@ -1,7 +1,4 @@
-import torch, os, esm
-from torch import nn
-import torch.nn.functional as F
-import torch.optim as optim
+import torch
 import pandas as pd
 import numpy as np
 import pickle
@@ -9,7 +6,7 @@ from torch.utils.data import Dataset
 
 torch.manual_seed(67)
 
-from aurora.configs.config import *
+from configs.config import *
 
 class Raw_Dataset(Dataset):
     """

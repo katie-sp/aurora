@@ -9,8 +9,8 @@ from torch.utils.data import Dataset
 
 torch.manual_seed(67)
 
-from aurora.configs.config import *
-from aurora.oracles.base import BaseOracle
+from configs.config import *
+from oracles.base import BaseOracle
 
 with open(WT_PATH, 'r') as file:
     wt = file.readline().strip()
@@ -18,7 +18,7 @@ with open(WT_PATH, 'r') as file:
 class ESM_MLP_Oracle(BaseOracle):
     def __init__(self):
         super().__init__()
-        self.l1 = nn.Linear(1280, 320) # was 320,320 for 8M model
+        self.l1 = nn.Linear(320, 320) # was 1280,320 for 650M model
         self.l2 = nn.Linear(320, 128)
         self.l3 = nn.Linear(128, 1)
     

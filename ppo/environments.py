@@ -12,7 +12,7 @@ class ProteinEnv(gym.Env):
     """
     metadata = {"render.modes": ["human"]}
 
-    def __init__(self, seq, fitness_fn, DMS_path):
+    def __init__(self, seq, fitness_fn):
         ''' Requires the wild-type aa sequence (string), 
                 fitness_fn (defined in fitness_functions.py),
             and DMS dataset (path to csv)
@@ -26,7 +26,7 @@ class ProteinEnv(gym.Env):
 
         self.L = len(seq)
         self.fitness_fn = fitness_fn
-        self.DMS = pd.read_csv(DMS_path)
+        self.DMS = pd.read_csv(DMS_PATH)
         
         # convert sequence string → array of indices
         self.wt = np.array([self.aa_to_idx[a] for a in seq], dtype=np.int32)
@@ -51,7 +51,6 @@ class ProteinEnv(gym.Env):
         return pos, aa_idx
 
     def reset(self, *, seed=None, options=None):
-        # print(f'Step count: {self.step_count}')
         super().reset(seed=seed)
         self.state = self.wt.copy()  # back to wild-type
         self.step_count = 0
