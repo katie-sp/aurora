@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from gymnasium import spaces
 
-from configs.config import *
+from config import *
 
 class ProteinEnv(gym.Env):
     """
@@ -26,7 +26,6 @@ class ProteinEnv(gym.Env):
 
         self.L = len(seq)
         self.fitness_fn = fitness_fn
-        self.DMS = pd.read_csv(DMS_PATH)
         
         # convert sequence string → array of indices
         self.wt = np.array([self.aa_to_idx[a] for a in seq], dtype=np.int32)
@@ -65,7 +64,7 @@ class ProteinEnv(gym.Env):
         new_state[pos] = aa_idx
 
         # Reward from fitness function
-        reward, dataset_used = self.fitness_fn(self.idxs_to_letters(self.wt), self.idxs_to_letters(new_state), self.DMS)
+        reward = self.fitness_fn(self.idxs_to_letters(new_state))
 
         # You can choose episode termination rule:
         # e.g., fixed length episode of mutations
@@ -79,8 +78,7 @@ class ProteinEnv(gym.Env):
         truncated = (self.step_count > 5) # truncate after 6 steps (step_count will be 7 after 6 steps)
 
         # Key distinction: truncated allows for future bootstrapping, meaning that the model could continue to receive reward in the future.
-        info = {'dataset_used': dataset_used, 
-        'mutation_count': (self.wt != new_state),
+        info = {'mutation_count': (self.wt != new_state),
         'num_mutations_per_variant': (self.wt != new_state).sum()}
 
         return new_state.copy(), reward, terminated, truncated, info

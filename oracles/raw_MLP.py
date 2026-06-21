@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from configs.config import *
+from config import *
 from oracles.base import BaseOracle
 
 with open(WT_PATH, 'r') as file:
@@ -87,3 +87,12 @@ class Raw_MLP_Oracle(BaseOracle):
         x = x.reshape(batch_size, -1)
         x = self.mlp_head(x).squeeze(-1)
         return x
+
+def raw_MLP_fitness(embeddings):
+    oracle = Raw_MLP_Oracle()
+    if torch.cuda.is_available():
+        oracle.load_state_dict(torch.load(ORACLE_DIR + '/oracle.state_dict', weights_only=True))
+    else:
+        oracle.load_state_dict(torch.load(ORACLE_DIR + '/oracle.state_dict', weights_only=True, map_location=torch.device('cpu')))
+    oracle.eval()
+    return oracle.forward([embeddings]).item()

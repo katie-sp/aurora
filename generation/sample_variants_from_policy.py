@@ -5,46 +5,37 @@ from gymnasium import spaces
 import sys
 
 from stable_baselines3.common.vec_env import DummyVecEnv
-from stable_baselines3 import A2C
+from stable_baselines3 import PPO
 
 from protein_evolution.fitness_functions import fitness_ESM_DMS
 from protein_evolution.environments import ProteinEnv
 
 from datetime import datetime
 
+from config import *
+
 MODEL_PATH = '' # zip file
 MODEL_TYPE = '' # name to title .csv as
 NUM_VARIANTS = 10
 
 if __name__ == "__main__":
-    # Allow model path to be passed as command line argument
-    if len(sys.argv) > 1:
-        MODEL_PATH = sys.argv[1]
-        print(f'Set model_path to be {MODEL_PATH}')
-        MODEL_TYPE = sys.argv[2]
-        print(f'Set model_type to be {MODEL_TYPE}')
-    
-    if not MODEL_PATH or not MODEL_TYPE:
-        print("Error: MODEL_PATH and MODEL_TYPE must be set. Either edit the script or pass it as an argument.")
-        print("Usage: python sample_variants_from_policy.py [model_path] [model_type]")
-        sys.exit(1)
     
     # Load wild-type sequence
     with open('data/aav_wt.txt', 'r') as file:
         wt = file.readline().strip()
     
     # Load DMS dataset for fitness computation
-    DMS = pd.read_csv('data/aav_dms.csv')
+    DMS = pd.read_csv(DMS_PATH)
     
     # Create a single environment for sampling
     def make_env():
-        return ProteinEnv(wt, fitness_ESM_DMS, 'data/aav_dms.csv')
+        return ProteinEnv(fitness_ESM_DMS)
     
     env = make_env()
     
     # Load the trained model
     print(f"Loading model from {MODEL_PATH}...")
-    model = A2C.load(MODEL_PATH)
+    model = PPO.load(MODEL_PATH)
     print("Model loaded successfully!")
     
     # Sample variants

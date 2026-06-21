@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os, pickle
 import numpy as np
 
-from configs.config import *
+from config import *
 
 class TQDMCallback(BaseCallback):
     def __init__(self, total_timesteps: int, verbose: int = 0, algo='PPO'):
@@ -41,7 +41,6 @@ class ProteinRLLogger(BaseCallback):
         self.all_rewards = []
         self.top_rewards = []
         self.actions = []
-        self.dataset_used = []
         self.mutation_counts = None
         self.num_mutations_per_variant = []
 
@@ -54,7 +53,6 @@ class ProteinRLLogger(BaseCallback):
     def _on_rollout_end(self):
         # Called after each rollout (n_steps) - this is true katie checked
         self.actions += self.locals["actions"].tolist()
-        self.dataset_used += list(info['dataset_used'] for info in self.locals['infos'])
 
         # env = self.training_env.envs[0]
         reward = np.mean(self.locals["rewards"])  # rollout mean reward
@@ -78,7 +76,6 @@ class ProteinRLLogger(BaseCallback):
         with open(PPO_DIR + "/metrics.pkl", 'wb') as file:
             dicty = {
                 'actions': self.actions,
-                'dataset_used': self.dataset_used,
                 'mutation_counts': self.mutation_counts,
                 'num_mutations_per_variant': self.num_mutations_per_variant,
                 'all_rewards': self.all_rewards,

@@ -18,3 +18,10 @@ DMS_STD = 1.058
 # set the first and last position of the protein subsequence that is being evolved
 FIRST_POS = 1  # NOT 0-indexed!
 LAST_POS = 238
+
+# set the total number of timesteps to train PPO for, and number of environments to run in parallel
+TOTAL_TIMESTEPS = 10000
+NUM_ENVS = 64
+
+PPO_DIR = ROOT + f'/ppo/{WT_NAME}_{ORACLE_NAME}_{TOTAL_TIMESTEPS}steps'
+

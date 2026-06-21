@@ -2,25 +2,22 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.callbacks import CallbackList
 from stable_baselines3 import PPO
 
-# from protein_evolution.fitness_functions import fitness
-# import pdb;pdb.set_trace()
 from ppo.callbacks import *
 from ppo.environments import ProteinEnv
-from configs.config import *
+from config import *
 from oracles import ORACLE_REGISTRY
 
 if __name__ == "__main__":
     with open(WT_PATH, 'r') as file:
         wt = file.readline().strip()
 
-    def fitness(wt, mut, DMS):
-        DMS_score = ORACLE_REGISTRY[ORACLE_NAME][0]().forward([mut]).item()
+    def fitness(mut):
+        DMS_score = ORACLE_REGISTRY[ORACLE_NAME][2]([mut]).item()
         DMS_normalized = (DMS_score - DMS_MEAN) / DMS_STD
-        return DMS_normalized, None
+        return DMS_normalized
 
     def make_env():
         return ProteinEnv(wt, fitness)
-
 
     vec_env = DummyVecEnv([make_env for _ in range(NUM_ENVS)])
 

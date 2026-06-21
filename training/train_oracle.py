@@ -8,7 +8,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from scipy.stats import spearmanr
 import pickle
 
-from configs.config import *
+from config import *
 from oracles import ORACLE_REGISTRY
 
 def extract_dataset_arrays(dataset, device):
