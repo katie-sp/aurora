@@ -42,4 +42,4 @@ def ESM_MLP_fitness(embeddings):
     else:
         oracle.load_state_dict(torch.load(ORACLE_DIR + '/oracle.state_dict', weights_only=True, map_location=torch.device('cpu')))
     oracle.eval()
-    return oracle.forward([embeddings]).item()
+    return oracle.forward(embeddings).item()

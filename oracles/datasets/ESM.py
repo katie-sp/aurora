@@ -7,7 +7,7 @@ import numpy as np
 import pickle
 from torch.utils.data import Dataset
 
-from configs.config import *
+from config import *
 
 # Load the pretrained ESM2 model
 esm_model, esm_alphabet = esm.pretrained.esm2_t6_8M_UR50D() #esm.pretrained.esm2_t33_650M_UR50D()
@@ -17,9 +17,8 @@ batch_converter = esm_alphabet.get_batch_converter()
 mask_idx = esm_alphabet.mask_idx
 
 class Embedder:
-    def __init__(self, wt_seq, WT_NAME):
+    def __init__(self, wt_seq):
         self.wt_seq = wt_seq
-        self.WT_NAME = WT_NAME
         self.wt_embedding = None
         self.position_embeddings = {}  # Cache per-position embeddings
     
@@ -55,16 +54,17 @@ class Embedder:
     
     def embed_mutant(self, seq):
         """ Compute ESM embedding (mean over all amino acids) of a protein """
+            
         data = [("protein_id", seq)] 
         _, _, batch_tokens = batch_converter(data)
 
         with torch.no_grad():
-            results = esm_model(batch_tokens, repr_layers=[33], return_contacts=False)
-        #results = esm_model(batch_tokens, repr_layers=[6], return_contacts=False)
+            # results = esm_model(batch_tokens, repr_layers=[33], return_contacts=False)
+            results = esm_model(batch_tokens, repr_layers=[6], return_contacts=False)
 
-        token_embeddings = results["representations"][33][:, 1:-1, :][0].cpu().numpy()  # [L, 1280]
+        # token_embeddings = results["representations"][33][:, 1:-1, :][0].cpu().numpy()  # [L, 1280]
         # remove start/end tokens with [:, 1:-1, :]
-        #token_embeddings = results["representations"][6][:, 1:-1, :][0].cpu().numpy()  # [L, 320]
+        token_embeddings = results["representations"][6][:, 1:-1, :][0].cpu().numpy()  # [L, 320]
 
         sequence_embedding = token_embeddings.mean(axis=0)  # [320]
         return sequence_embedding # [320]
@@ -81,7 +81,7 @@ class ESM_Dataset(Dataset):
         with open(WT_PATH, 'r') as file:
             wt = file.readline().strip()  # wt seq as string
 
-        self.embedder = Embedder(wt, WT_NAME)
+        self.embedder = Embedder(wt)
         
         if precompute:
             print("Pre-computing embeddings for all sequences...")

@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.model_selection import KFold
 from sklearn.metrics import mean_squared_error, r2_score
 from scipy.stats import spearmanr
-import pickle
+import pickle, os
 
 from config import *
 from oracles import ORACLE_REGISTRY
@@ -223,6 +223,7 @@ def train(n_epochs=30, n_splits=5, batch_size=64, lr=1e-3):
     print(f"{'='*60}\n")
     
     # Save results
+    os.makedirs(ORACLE_DIR, exist_ok=True)
     with open(f"{ORACLE_DIR}/oracle_metrics.pkl", 'wb') as f:
         pickle.dump(metrics, f)
     print(f"✓ Metrics saved to {ORACLE_DIR}/oracle_metrics.pkl")

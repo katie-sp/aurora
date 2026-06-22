@@ -2,34 +2,36 @@ import gymnasium as gym
 import numpy as np
 import pandas as pd
 from gymnasium import spaces
-import sys
+import sys, os
 
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3 import PPO
 
-from protein_evolution.fitness_functions import fitness_ESM_DMS
-from protein_evolution.environments import ProteinEnv
-
 from datetime import datetime
-
+from oracles import ORACLE_REGISTRY
+from ppo.environments import ProteinEnv
 from config import *
 
-MODEL_PATH = '' # zip file
-MODEL_TYPE = '' # name to title .csv as
-NUM_VARIANTS = 10
+NUM_VARIANTS = 10  # vary this to sample more or fewer variants
+MODEL_PATH = PPO_DIR + '/ppo_model' # zip file
+MODEL_TYPE = f'{WT_NAME}_{ORACLE_NAME}_{TOTAL_TIMESTEPS}steps' # name to title .csv as
 
 if __name__ == "__main__":
     
     # Load wild-type sequence
-    with open('data/aav_wt.txt', 'r') as file:
+    with open(WT_PATH, 'r') as file:
         wt = file.readline().strip()
     
     # Load DMS dataset for fitness computation
     DMS = pd.read_csv(DMS_PATH)
+    def fitness(mut):
+        DMS_score = ORACLE_REGISTRY[ORACLE_NAME][2](mut)
+        DMS_normalized = (DMS_score - DMS_MEAN) / DMS_STD
+        return DMS_normalized
     
     # Create a single environment for sampling
     def make_env():
-        return ProteinEnv(fitness_ESM_DMS)
+        return ProteinEnv(wt, fitness)
     
     env = make_env()
     
@@ -64,24 +66,23 @@ if __name__ == "__main__":
     
     results = []
     for i, variant_seq in enumerate(variants):
-        fitness, dataset_used = fitness_ESM_DMS(wt, variant_seq, DMS)
+        predicted_fitness = fitness(variant_seq)
         results.append({
             'variant_id': i + 1,
             'sequence': variant_seq,
-            'fitness': fitness,
-            'dataset_used': dataset_used
+            'predicted fitness (DMS normalized)': predicted_fitness
         })
         print(f"\nVariant {i+1}:")
         print(f"  Sequence: {variant_seq}")
-        print(f"  Fitness: {fitness:.4f}")
-        print(f"  Dataset used: {dataset_used}")
+        print(f"  Fitness: {predicted_fitness:.4f}")
     
     now = datetime.now()
-    formatted_date = now.strftime("%Y-%m-%d_%H:%M:%S")
+    formatted_date = now.strftime("%Y-%m-%d_%H-%M-%S")
 
     # Save results to CSV
     results_df = pd.DataFrame(results)
-    output_path = f'logs/{MODEL_TYPE}_{formatted_date}_sampled_variants.csv'
+    os.makedirs(f'{ROOT}/generation/{MODEL_TYPE}', exist_ok=True)
+    output_path = f'{ROOT}/generation/{MODEL_TYPE}/{formatted_date}_sampled_variants.csv'
     results_df.to_csv(output_path, index=False)
     print(f"\n{'='*80}")
     print(f"Results saved to {output_path}")

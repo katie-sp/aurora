@@ -6,7 +6,7 @@ from torch.utils.data import Dataset
 
 torch.manual_seed(67)
 
-from configs.config import *
+from config import *
 
 class Raw_Dataset(Dataset):
     """

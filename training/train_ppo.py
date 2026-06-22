@@ -12,7 +12,7 @@ if __name__ == "__main__":
         wt = file.readline().strip()
 
     def fitness(mut):
-        DMS_score = ORACLE_REGISTRY[ORACLE_NAME][2]([mut]).item()
+        DMS_score = ORACLE_REGISTRY[ORACLE_NAME][2](mut)
         DMS_normalized = (DMS_score - DMS_MEAN) / DMS_STD
         return DMS_normalized
 
@@ -39,4 +39,4 @@ if __name__ == "__main__":
     logger_cb = ProteinRLLogger(check_freq=1)
     callback = CallbackList([tqdm_cb, logger_cb])
     model.learn(total_timesteps=TOTAL_TIMESTEPS, callback=callback)
-    model.save(PPO_DIR + '/ppo_model.pkl')
+    model.save(PPO_DIR + '/ppo_model')

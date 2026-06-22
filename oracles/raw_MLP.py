@@ -43,6 +43,9 @@ class Raw_MLP_Oracle(BaseOracle):
         Optimized batch encoding of sequences to indices.
         Uses vectorized operations instead of nested loops.
         """
+        if isinstance(sequences, torch.Tensor):
+            return sequences
+            
         batch_size = len(sequences)
         device = next(self.parameters()).device
         
@@ -88,7 +91,7 @@ class Raw_MLP_Oracle(BaseOracle):
         x = self.mlp_head(x).squeeze(-1)
         return x
 
-def raw_MLP_fitness(embeddings):
+def Raw_MLP_fitness(embeddings):
     oracle = Raw_MLP_Oracle()
     if torch.cuda.is_available():
         oracle.load_state_dict(torch.load(ORACLE_DIR + '/oracle.state_dict', weights_only=True))
