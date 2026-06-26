@@ -1,5 +1,7 @@
 # AURORA: Alignment-Guided Mutation Proposer and Oracle
 
+**Paper accepted at the 2026 Workshop on Generative and Agentic AI for Biology (ICML 2026)**: https://openreview.net/pdf?id=Pj84px7sne
+
 ## Getting started
 You will need to install packages either via pip (`pip install -r requirements.txt`) or conda (`conda env create -f requirement.yml`). This includes ESM but not MSA Pairformer or BiMamba, which you must install separately if you'd like to use those models.
 
